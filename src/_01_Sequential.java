@@ -1,7 +1,40 @@
+import java.awt.Color;
+
+import utils.FileUtils;
+import utils.Utils;
+
 public class _01_Sequential {
     public static void main(String[] args) {
-        System.out.println("Hello World");
-        System.out.println("Welcome to Java Programming");
-        System.out.println("This is a sequential program");
+        Color[][] image = FileUtils.loadTestImage();
+        int total_pixels = image.length * image[0].length;
+
+        int[] hist = new int[256];
+        int[] cumulative = new int[256];
+
+        // 1. Compute luminosity histogram
+        for (int y = 0; y < image.length; y++) {
+            for (int x = 0; x < image[y].length; x++) {
+                Color pixel = image[y][x];
+                int lum = Utils.computeLuminosity(pixel);
+                hist[lum]++;
+            }
+        }
+
+        // 2. Compute cumulative luminosity histogram
+        cumulative[0] = hist[0];
+        for (int i = 1; i < 256; i++) {
+            cumulative[i] = cumulative[i - 1] + hist[i];
+        }
+
+        // 3. Rewrite pixels
+        for (int y = 0; y < image.length; y++) {
+            for (int x = 0; x < image[y].length; x++) {
+                Color pixel = image[y][x];
+                int lum = Utils.computeNewLuminosity(pixel, cumulative, total_pixels);
+                image[y][x] = new Color(lum, lum, lum);
+            }
+        }
+
+        FileUtils.writeTestImage(image);
     }
 }

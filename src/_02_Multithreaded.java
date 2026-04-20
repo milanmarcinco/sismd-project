@@ -38,11 +38,15 @@ public class _02_Multithreaded {
                     }
                 }
 
+                Benchmark.snapshotMemory();
+
                 synchronized (hist) {
                     for (int j = 0; j < 256; j++) {
                         hist[j] += localHist[j];
                     }
                 }
+
+                Benchmark.snapshotMemory();
             });
 
             threads[i] = t;

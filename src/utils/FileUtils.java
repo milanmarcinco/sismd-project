@@ -7,7 +7,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 public class FileUtils {
-	private static String INPUT_FILE_NAME = "input.jpg";
+	private static String INPUT_FILE_NAME = "input2.jpg";
 	private static String OUTPUT_FILE_NAME = "output.jpg";
 
 	public static Color[][] loadTestImage() {

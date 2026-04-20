@@ -91,7 +91,7 @@ public class _03_Threadpool {
 
         latch2.await();
         Benchmark.snapshotMemory();
-        executor.shutdownNow();
+        executor.shutdown();
         Benchmark.snapshotMemory();
 
         FileUtils.writeTestImage(image);

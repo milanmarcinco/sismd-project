@@ -2,6 +2,7 @@ import java.awt.Color;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicIntegerArray;
 
 import utils.Benchmark;
 import utils.FileUtils;
@@ -16,7 +17,7 @@ public class _03_Threadpool {
         Color[][] image = FileUtils.loadTestImage();
         int total_pixels = image.length * image[0].length;
 
-        int[] hist = new int[256];
+        AtomicIntegerArray hist = new AtomicIntegerArray(256);
         int[] cumulative = new int[256];
 
         ExecutorService executor = Executors.newFixedThreadPool(NUM_THREADS);
@@ -44,10 +45,8 @@ public class _03_Threadpool {
 
                 Benchmark.snapshotMemory();
 
-                synchronized (hist) {
-                    for (int j = 0; j < 256; j++) {
-                        hist[j] += localHist[j];
-                    }
+                for (int j = 0; j < 256; j++) {
+                    hist.addAndGet(j, localHist[j]);
                 }
 
                 Benchmark.snapshotMemory();
@@ -63,9 +62,9 @@ public class _03_Threadpool {
         CountDownLatch latch2 = new CountDownLatch(NUM_THREADS);
 
         // 2. Compute cumulative luminosity histogram
-        cumulative[0] = hist[0];
+        cumulative[0] = hist.get(0);
         for (int i = 1; i < 256; i++) {
-            cumulative[i] = cumulative[i - 1] + hist[i];
+            cumulative[i] = cumulative[i - 1] + hist.get(i);
         }
 
         // 3. Rewrite pixels with new luminosity values based on cumulative histogram

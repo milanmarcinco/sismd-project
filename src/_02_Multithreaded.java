@@ -1,5 +1,4 @@
 import java.awt.Color;
-import java.util.concurrent.atomic.AtomicIntegerArray;
 
 import utils.Benchmark;
 import utils.FileUtils;
@@ -14,7 +13,7 @@ public class _02_Multithreaded {
         Color[][] image = FileUtils.loadTestImage();
         int total_pixels = image.length * image[0].length;
 
-        AtomicIntegerArray atomicHist = new AtomicIntegerArray(256);
+        int[] hist = new int[256];
         int[] cumulative = new int[256];
 
         Thread[] threads = new Thread[NUM_THREADS];
@@ -39,8 +38,10 @@ public class _02_Multithreaded {
                     }
                 }
 
-                for (int j = 0; j < 256; j++) {
-                    atomicHist.addAndGet(j, localHist[j]);
+                synchronized (hist) {
+                    for (int j = 0; j < 256; j++) {
+                        hist[j] += localHist[j];
+                    }
                 }
             });
 
@@ -61,9 +62,9 @@ public class _02_Multithreaded {
         Benchmark.snapshotMemory();
 
         // 2. Compute cumulative luminosity histogram
-        cumulative[0] = atomicHist.get(0);
+        cumulative[0] = hist[0];
         for (int i = 1; i < 256; i++) {
-            cumulative[i] = cumulative[i - 1] + atomicHist.get(i);
+            cumulative[i] = cumulative[i - 1] + hist[i];
         }
 
         Benchmark.snapshotMemory();

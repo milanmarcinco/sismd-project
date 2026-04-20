@@ -16,8 +16,12 @@ public class _04_ForkJoin {
 
         ForkJoinPool pool = new ForkJoinPool();
 
+        Benchmark.snapshotMemory();
+
         HistogramTask histogramTask = new HistogramTask(image, 0, image.length);
         int[] hist = pool.invoke(histogramTask);
+
+        Benchmark.snapshotMemory();
 
         int[] cumulative = new int[256];
         cumulative[0] = hist[0];
@@ -27,7 +31,11 @@ public class _04_ForkJoin {
         UpdateTask updateTask = new UpdateTask(image, cumulative, 0, image.length, total_pixels);
         pool.invoke(updateTask);
 
+        Benchmark.snapshotMemory();
+
         pool.close();
+
+        Benchmark.snapshotMemory();
 
         FileUtils.writeTestImage(image);
         Benchmark.endMeasurement();
@@ -61,6 +69,7 @@ class HistogramTask extends RecursiveTask<int[]> {
                 }
             }
 
+            Benchmark.snapshotMemory();
             return localHist;
         }
 
@@ -78,6 +87,8 @@ class HistogramTask extends RecursiveTask<int[]> {
         int[] merged = new int[256];
         for (int i = 0; i < 256; i++)
             merged[i] = leftHist[i] + rightHist[i];
+
+        Benchmark.snapshotMemory();
 
         return merged;
     }
@@ -112,6 +123,7 @@ class UpdateTask extends RecursiveAction {
                 }
             }
 
+            Benchmark.snapshotMemory();
             return;
         }
 
@@ -125,5 +137,7 @@ class UpdateTask extends RecursiveAction {
 
         right.join();
         left.join();
+
+        Benchmark.snapshotMemory();
     }
 }
